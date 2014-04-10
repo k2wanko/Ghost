@@ -11,6 +11,9 @@ var _              = require('lodash'),
     ghostBookshelf = require('./base'),
     validation     = require('../data/validation'),
     xmlrpc         = require('../xmlrpc'),
+    mecab = require('mecab.js'),
+    parser = new mecab.MeCab(),
+    cheerio = require('cheerio'),
 
     Post,
     Posts;
@@ -66,7 +69,17 @@ Post = ghostBookshelf.Model.extend({
 
         ghostBookshelf.Model.prototype.saving.call(this);
 
-        this.set('html', converter.makeHtml(this.get('markdown')));
+        var html = converter.makeHtml(this.get('markdown'));
+        this.set('html', html);
+
+        // generate words from html
+        var text = cheerio.load(html).root().text();
+        parser.parse(text, function(err, result) {
+          if (err) throw err;
+
+          console.log(result);
+          this.set('words', result.join('-'));
+        }.bind(this));
 
         // disabling sanitization until we can implement a better version
         //this.set('title', this.sanitize('title').trim());
