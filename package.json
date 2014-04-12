@@ -55,7 +55,9 @@
     "when": "2.7.0",
     "xml": "0.0.12",
     "cheerio": "^0.15.0",
-    "mecab": "git://github.com/simedw/mecab.js"
+    "mecab": "git://github.com/simedw/mecab.js",
+    "sparql-client": "0.0.2",
+    "squel": "git://github.com/oimou/squel"
   },
   "optionalDependencies": {
     "mysql": "2.1.1"
