@@ -11,7 +11,7 @@ var _              = require('lodash'),
     ghostBookshelf = require('./base'),
     validation     = require('../data/validation'),
     xmlrpc         = require('../xmlrpc'),
-    mecab = require('mecab.js'),
+    mecab = require('mecab'),
     parser = new mecab.MeCab(),
     cheerio = require('cheerio'),
 

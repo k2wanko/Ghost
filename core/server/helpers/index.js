@@ -240,6 +240,15 @@ coreHelpers.tags = function (options) {
     return new hbs.handlebars.SafeString(output);
 };
 
+// ### Words Helper
+//
+// *Usage example:*
+// `{{words}}`
+//
+coreHelpers.words = function (options) {
+    return new hbs.handlebars.SafeString(this.words);
+};
+
 // ### Content Helper
 //
 // *Usage example:*
@@ -763,6 +772,8 @@ registerHelpers = function (adminHbs, assetHash) {
     registerThemeHelper('author', coreHelpers.author);
 
     registerThemeHelper('content', coreHelpers.content);
+
+    registerThemeHelper('words', coreHelpers.words);
 
     registerThemeHelper('date', coreHelpers.date);
 
