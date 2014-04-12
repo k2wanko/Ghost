@@ -39,7 +39,7 @@ Post = ghostBookshelf.Model.extend({
             return self.updateTags(model, attributes, options);
         });
         this.on('saving', function (model, attributes, options) {
-            return when(self.saving(model, attributes, options)).then(function () {
+            return when.all(self.saving(model, attributes, options)).then(function () {
                 return self.validate(model, attributes, options);
             });
         });
@@ -72,15 +72,6 @@ Post = ghostBookshelf.Model.extend({
         var html = converter.makeHtml(this.get('markdown'));
         this.set('html', html);
 
-        // generate words from html
-        var text = cheerio.load(html).root().text();
-        parser.parse(text, function(err, result) {
-          if (err) throw err;
-
-          console.log(result);
-          this.set('words', result.join('-'));
-        }.bind(this));
-
         // disabling sanitization until we can implement a better version
         //this.set('title', this.sanitize('title').trim());
         this.set('title', this.get('title').trim());
@@ -93,15 +84,36 @@ Post = ghostBookshelf.Model.extend({
             this.set('published_by', 1);
         }
 
+        var setWords = function() {
+            var def = when.defer();
+
+            // generate words from html
+            var text = cheerio.load(html).root().text();
+            parser.parse(text, function(err, result) {
+              if (err) throw err;
+
+              console.log(result);
+              self.set('words', result.join('-'));
+
+              def.resolve();
+            });
+
+            return def.promise;
+        };
+
         if (this.hasChanged('slug') || !this.get('slug')) {
             // Pass the new slug through the generator to strip illegal characters, detect duplicates
-            return ghostBookshelf.Model.generateSlug(Post, this.get('slug') || this.get('title'),
+            return [
+                ghostBookshelf.Model.generateSlug(Post, this.get('slug') || this.get('title'),
                     {status: 'all', transacting: options.transacting})
                 .then(function (slug) {
                     self.set({slug: slug});
-                });
+                }),
+                setWords()
+            ];
+        } else {
+          return [setWords()];
         }
-
     },
 
     creating: function (newPage, attr, options) {
